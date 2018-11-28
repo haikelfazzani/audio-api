@@ -5,7 +5,7 @@
   "main": "index.html",
   "scripts": {
     "dev": "parcel index.html",
-    "build": "parcel app.js"
+    "build": "parcel src/api.js"
   },
   "keywords": ["audio" , "player" , "api"],
   "author": "Haikel Fazzani",
