@@ -4,6 +4,7 @@ dist/
 
 # Project
 *.html
-test
 *.css
-app
+
+test*
+app.js
