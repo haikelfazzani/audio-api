@@ -1,0 +1,13 @@
+{
+  "name": "audio-api",
+  "version": "1.0.0",
+  "description": "a small api to handle audio",
+  "main": "index.html",
+  "scripts": {
+    "dev": "parcel index.html",
+    "build": "parcel app.js"
+  },
+  "keywords": ["audio" , "player" , "api"],
+  "author": "Haikel Fazzani",
+  "license": "MIT"
+}

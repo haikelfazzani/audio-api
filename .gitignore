@@ -1,0 +1,9 @@
+# Parcel
+.cache
+dist/
+
+# Project
+*.html
+test
+*.css
+app
