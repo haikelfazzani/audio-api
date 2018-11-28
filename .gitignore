@@ -5,6 +5,3 @@ dist/
 # Project
 *.html
 *.css
-
-test*
-app.js
