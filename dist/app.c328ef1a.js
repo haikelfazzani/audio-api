@@ -255,34 +255,50 @@ function () {
     key: "addTrack",
     value: function addTrack(event) {
       event.preventDefault();
-      var audioFile = event.target.files[0],
-          audioBlob = URL.createObjectURL(audioFile);
-      this.createPlayList(audioFile);
-      this.tracks.push({
-        id: this.i++,
-        name: audioBlob
-      });
+
+      var audioFiles = _toConsumableArray(event.target.files);
+
+      this.getTracks(audioFiles);
       this.emitter.emit('haschild', this.hasChild = true);
+    }
+  }, {
+    key: "getTracks",
+    value: function getTracks(audioFiles) {
+      var _this = this;
+
+      audioFiles.map(function (audio) {
+        if (!_this.tracks.some(function (_ref) {
+          var trackName = _ref.trackName;
+          return trackName === audio.name;
+        })) {
+          _this.createPlayList(audio);
+
+          _this.tracks.push({
+            trackName: audio.name,
+            name: URL.createObjectURL(audio)
+          });
+        }
+      });
       return this.tracks;
     } // on child element click , play track
 
   }, {
     key: "onChildPlay",
     value: function onChildPlay() {
-      var _this = this;
+      var _this2 = this;
 
       this.emitter.on('haschild', function (hasChild) {
         if (hasChild) {
-          _toConsumableArray(_this.parentId.childNodes).map(function (child, index) {
-            _this.emitter.removeListener('haschild', _this.hasChild);
+          _toConsumableArray(_this2.parentId.childNodes).map(function (child, index) {
+            _this2.emitter.removeListener('haschild', _this2.hasChild);
 
             child.onclick = function () {
-              _this.removeActiveClass();
+              _this2.removeActiveClass();
 
-              child.classList.add(_this.activeClass);
-              _this.currentTrackIndex = index;
+              child.classList.add(_this2.activeClass);
+              _this2.currentTrackIndex = index;
 
-              _this.playCurrentByIndex(index);
+              _this2.playCurrentByIndex(index);
             };
           });
         }
@@ -373,19 +389,19 @@ function () {
   }, {
     key: "loopAllTacks",
     value: function loopAllTacks() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.emitter.on('playall', function (playall) {
-        _this2.audio.onended = function () {
+        _this3.audio.onended = function () {
           if (playall) {
-            _this2.removeActiveClassByIndex(_this2.currentTrackIndex);
+            _this3.removeActiveClassByIndex(_this3.currentTrackIndex);
 
-            _this2.currentTrackIndex++;
-            _this2.currentTrackIndex = _this2.currentTrackIndex > _this2.tracks.length - 1 ? 0 : _this2.tracks.length - 1;
+            _this3.currentTrackIndex++;
+            _this3.currentTrackIndex = _this3.currentTrackIndex > _this3.tracks.length - 1 ? 0 : _this3.tracks.length - 1;
 
-            _this2.addActiveClassByIndex(_this2.currentTrackIndex);
+            _this3.addActiveClassByIndex(_this3.currentTrackIndex);
 
-            _this2.playCurrentByIndex(_this2.currentTrackIndex);
+            _this3.playCurrentByIndex(_this3.currentTrackIndex);
           }
         };
       });
@@ -408,10 +424,10 @@ function () {
   }, {
     key: "removeActiveClass",
     value: function removeActiveClass() {
-      var _this3 = this;
+      var _this4 = this;
 
       _toConsumableArray(this.parentId.childNodes).map(function (child) {
-        return child.classList.remove(_this3.activeClass);
+        return child.classList.remove(_this4.activeClass);
       });
     }
   }, {

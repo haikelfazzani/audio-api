@@ -22,13 +22,20 @@ export class AudioPlayer {
     }
 
     addTrack(event) {
-        event.preventDefault();
-        let audioFile = event.target.files[0], audioBlob = URL.createObjectURL(audioFile);
-
-        this.createPlayList(audioFile);
-        this.tracks.push({ id: this.i++, name: audioBlob });
-
+        event.preventDefault();       
+        let audioFiles = [...event.target.files];
+        this.getTracks(audioFiles);
         this.emitter.emit('haschild', this.hasChild = true);
+    }
+
+    getTracks(audioFiles) {
+        audioFiles.map(audio => {
+            if(!this.tracks.some(({trackName}) => trackName === audio.name)) 
+            {
+                this.createPlayList(audio);
+                this.tracks.push({ trackName: audio.name , name: URL.createObjectURL(audio) });
+            }
+        });
         return this.tracks;
     }
 
@@ -73,7 +80,7 @@ export class AudioPlayer {
     }
 
     nextTack() {
-        if (this.tracks.length > 0) {
+        if (this.tracks.length > 0) {            
             this.removeActiveClassByIndex(this.currentTrackIndex);
             this.currentTrackIndex++;
 
