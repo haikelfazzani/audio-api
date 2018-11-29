@@ -1,3 +1,6 @@
+/* Create your own playlist from your local computer */
+/* API Author : Haikel Fazzani */
+/* Api tested on : chrome , firefox , opera , edge */
 import EventEmitter from "./event-emiter";
 
 export class AudioPlayer {
