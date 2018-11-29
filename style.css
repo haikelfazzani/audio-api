@@ -1,0 +1,35 @@
+body { 
+    background-color: #1d1d1d; 
+}
+
+ul {
+    background-color: #ffffff;
+    max-width: 600px;
+    padding: 10px;
+}
+
+li {
+    background-color: #e91e63;
+    padding: 10px;
+    color: #ffffff;
+    list-style: none;
+    cursor: pointer;
+}
+
+button {
+    color: #ffffff;
+    background-color: #e91e63;
+    padding: 10px 20px;
+    border: 0;
+    cursor: pointer;
+    border: 1px solid #ffffff;
+    transition: background-color 1s ease;
+}
+
+button:hover {
+    background-color: #a11745;
+}
+
+.active {
+    background-color: rgb(56, 56, 56);
+}
