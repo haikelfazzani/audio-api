@@ -252,38 +252,53 @@ function () {
   }
 
   _createClass(AudioPlayer, [{
-    key: "addAudio",
-    value: function addAudio(event) {
+    key: "addTrack",
+    value: function addTrack(event) {
       event.preventDefault();
-      var audioFile = event.target.files[0],
-          audioBlob = URL.createObjectURL(audioFile);
-      this.createPlayList(audioFile);
-      this.tracks.push({
-        id: this.i++,
-        name: audioBlob
-      });
+
+      var audioFiles = _toConsumableArray(event.target.files);
+
+      this.getTracks(audioFiles);
       this.emitter.emit('haschild', this.hasChild = true);
+    }
+  }, {
+    key: "getTracks",
+    value: function getTracks(audioFiles) {
+      var _this = this;
+
+      audioFiles.map(function (audio) {
+        if (!_this.tracks.some(function (_ref) {
+          var name = _ref.name;
+          return name === audio.name;
+        })) {
+          _this.createPlayList(audio);
+
+          _this.tracks.push({
+            name: audio.name,
+            url: URL.createObjectURL(audio)
+          });
+        }
+      });
       return this.tracks;
-    } // on click on audio in the list , the audio play the current
+    } // on child element click , play track
 
   }, {
-    key: "playCurrentTack",
-    value: function playCurrentTack() {
-      var _this = this;
+    key: "onChildPlay",
+    value: function onChildPlay() {
+      var _this2 = this;
 
       this.emitter.on('haschild', function (hasChild) {
         if (hasChild) {
-          _toConsumableArray(_this.parentId.childNodes).map(function (child, index) {
-            _this.emitter.removeListener('haschild', _this.hasChild);
+          _toConsumableArray(_this2.parentId.childNodes).map(function (child, index) {
+            _this2.emitter.removeListener('haschild', _this2.hasChild);
 
             child.onclick = function () {
-              _this.removeActiveClass();
+              _this2.removeActiveClass();
 
-              child.classList.add(_this.activeClass);
-              _this.currentTrackIndex = index;
-              _this.audio.src = _this.tracks[index].name;
+              child.classList.add(_this2.activeClass);
+              _this2.currentTrackIndex = index;
 
-              _this.audio.play();
+              _this2.playCurrentByIndex(index);
             };
           });
         }
@@ -292,126 +307,9 @@ function () {
 
   }, {
     key: "createPlayList",
-    value: function createPlayList(url) {
-      this.createElemnt(this.parentId, this.childs, url.name);
-    }
-    /* ------- Audio Controls -------- */
-
-  }, {
-    key: "playTrack",
-    value: function playTrack() {
-      if (this.tracks.length > 0) {
-        this.removeActiveClass();
-        this.addActiveClassByIndex(this.currentTrackIndex);
-        this.audio.src = this.tracks[this.currentTrackIndex].name;
-        this.audio.play();
-      }
-    }
-  }, {
-    key: "pauseTack",
-    value: function pauseTack() {
-      if (this.audio.paused) this.audio.play();else this.audio.pause();
-    }
-  }, {
-    key: "nextTack",
-    value: function nextTack() {
-      if (this.tracks.length > 0) {
-        this.removeActiveClassByIndex(this.currentTrackIndex);
-        this.currentTrackIndex++;
-        this.currentTrackIndex = this.currentTrackIndex > this.tracks.length - 1 ? 0 : this.currentTrackIndex;
-        this.addActiveClassByIndex(this.currentTrackIndex);
-        this.audio.src = this.tracks[this.currentTrackIndex].name;
-        this.audio.play();
-      }
-    }
-  }, {
-    key: "prevTack",
-    value: function prevTack() {
-      if (this.tracks.length > 0) {
-        this.removeActiveClassByIndex(this.currentTrackIndex);
-        this.currentTrackIndex--;
-        this.currentTrackIndex = this.currentTrackIndex < 0 ? this.tracks.length - 1 : this.currentTrackIndex;
-        this.addActiveClassByIndex(this.currentTrackIndex);
-        this.audio.src = this.tracks[this.currentTrackIndex].name;
-        this.audio.play();
-      }
-    }
-  }, {
-    key: "muteTack",
-    value: function muteTack() {
-      this.audio.muted = this.audio.muted === false ? true : false;
-    }
-  }, {
-    key: "volUp",
-    value: function volUp() {
-      return this.audio.volume = this.audio.volume < 1 ? this.audio.volume + 0.1 : 0.9;
-    }
-  }, {
-    key: "volDown",
-    value: function volDown() {
-      return this.audio.volume = this.audio.volume > 0.1 ? this.audio.volume - 0.1 : 0.1;
-    } // loop single track
-
-  }, {
-    key: "loopTack",
-    value: function loopTack() {
-      if (this.audio.loop) this.audio.loop = false;else this.audio.loop = true;
-    } // loop all tracks list
-
-  }, {
-    key: "playAll",
-    value: function playAll() {
-      this.audio.loop = false;
-      this.loopAll = this.loopAll ? false : true;
-      this.emitter.emit('playall', this.loopAll);
-      return this.loopAll;
-    }
-  }, {
-    key: "loopAllTacks",
-    value: function loopAllTacks() {
-      var _this2 = this;
-
-      this.emitter.on('playall', function (playall) {
-        _this2.audio.onended = function () {
-          if (playall) {
-            _this2.removeActiveClassByIndex(_this2.currentTrackIndex);
-
-            _this2.currentTrackIndex++;
-            _this2.currentTrackIndex = _this2.currentTrackIndex > _this2.tracks.length - 1 ? 0 : _this2.tracks.length - 1;
-
-            _this2.addActiveClassByIndex(_this2.currentTrackIndex);
-
-            _this2.audio.src = _this2.tracks[_this2.currentTrackIndex].name;
-
-            _this2.audio.play();
-          }
-        };
-      });
-    }
-    /* __________ Methods to handle the tracks list Elements */
-
-  }, {
-    key: "addActiveClassByIndex",
-    value: function addActiveClassByIndex() {
-      var index = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-      this.parentId.childNodes[index].classList.add(this.activeClass);
-    } // remove class 'active' from the previous active track
-
-  }, {
-    key: "removeActiveClass",
-    value: function removeActiveClass() {
-      var _this3 = this;
-
-      _toConsumableArray(this.parentId.childNodes).map(function (child) {
-        return child.classList.remove(_this3.activeClass);
-      });
-    }
-  }, {
-    key: "removeActiveClassByIndex",
-    value: function removeActiveClassByIndex() {
-      var index = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-      this.parentId.childNodes[index].classList.remove(this.activeClass);
-    } // create element dom
+    value: function createPlayList(audio) {
+      this.createElemnt(this.parentId, this.childs, audio.name);
+    } // create a child element and appended to the parent element passed in the constructor
 
   }, {
     key: "createElemnt",
@@ -422,6 +320,132 @@ function () {
       var element = document.createElement(child);
       element.innerHTML = text;
       parent.appendChild(element);
+    }
+    /* ------- Audio Controls -------- */
+
+  }, {
+    key: "playTrack",
+    value: function playTrack() {
+      if (this.tracks.length > 0) {
+        this.removeActiveClass();
+        this.addActiveClassByIndex(this.currentTrackIndex);
+        this.playCurrentByIndex(this.currentTrackIndex);
+      }
+    }
+  }, {
+    key: "pauseTack",
+    value: function pauseTack() {
+      if (this.audio.paused) this.audio.play();else this.audio.pause();
+    }
+  }, {
+    key: "stopTrack",
+    value: function stopTrack() {
+      this.audio.pause();
+      this.audio.currentTime = 0;
+    }
+  }, {
+    key: "nextTack",
+    value: function nextTack() {
+      if (this.tracks.length > 0) {
+        this.removeActiveClassByIndex(this.currentTrackIndex);
+        this.currentTrackIndex++;
+        this.currentTrackIndex = this.currentTrackIndex > this.tracks.length - 1 ? 0 : this.currentTrackIndex;
+        this.addActiveClassByIndex(this.currentTrackIndex);
+        this.playCurrentByIndex(this.currentTrackIndex);
+      }
+    }
+  }, {
+    key: "prevTack",
+    value: function prevTack() {
+      if (this.tracks.length > 0) {
+        this.removeActiveClassByIndex(this.currentTrackIndex);
+        this.currentTrackIndex--;
+        this.currentTrackIndex = this.currentTrackIndex < 0 ? this.tracks.length - 1 : this.currentTrackIndex;
+        this.addActiveClassByIndex(this.currentTrackIndex);
+        this.playCurrentByIndex(this.currentTrackIndex);
+      }
+    }
+  }, {
+    key: "muteTack",
+    value: function muteTack() {
+      this.audio.muted = this.audio.muted === false ? true : false;
+    }
+  }, {
+    key: "volPlus",
+    value: function volPlus() {
+      return this.audio.volume = this.audio.volume < 1 ? this.audio.volume + 0.1 : 0.9;
+    }
+  }, {
+    key: "volMinus",
+    value: function volMinus() {
+      return this.audio.volume = this.audio.volume > 0.1 ? this.audio.volume - 0.1 : 0.1;
+    } // loop single track
+
+  }, {
+    key: "loopTack",
+    value: function loopTack() {
+      this.loopAll = false;
+      this.audio.loop = this.audio.loop ? false : true;
+    } // loop all tracks list
+
+  }, {
+    key: "playAll",
+    value: function playAll() {
+      this.audio.loop = false;
+      this.loopAll = this.loopAll ? false : true;
+      this.emitter.emit('playall', this.loopAll);
+      return this.loopAll;
+    } // this method listen for the event 'playall' emited by playAll() method
+
+  }, {
+    key: "loopAllTacks",
+    value: function loopAllTacks() {
+      var _this3 = this;
+
+      this.emitter.on('playall', function (playall) {
+        _this3.audio.onended = function () {
+          if (playall) {
+            _this3.removeActiveClassByIndex(_this3.currentTrackIndex);
+
+            _this3.currentTrackIndex++;
+            _this3.currentTrackIndex = _this3.currentTrackIndex > _this3.tracks.length - 1 ? 0 : _this3.tracks.length - 1;
+
+            _this3.addActiveClassByIndex(_this3.currentTrackIndex);
+
+            _this3.playCurrentByIndex(_this3.currentTrackIndex);
+          }
+        };
+      });
+    } // play current track by its index passed in parameters
+
+  }, {
+    key: "playCurrentByIndex",
+    value: function playCurrentByIndex(trackIndex) {
+      this.audio.src = this.tracks[trackIndex].url;
+      this.audio.play();
+    }
+    /* add & remove a active class to the current child play (css) */
+
+  }, {
+    key: "addActiveClassByIndex",
+    value: function addActiveClassByIndex() {
+      var index = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+      this.parentId.childNodes[index].classList.add(this.activeClass);
+    }
+  }, {
+    key: "removeActiveClass",
+    value: function removeActiveClass() {
+      var _this4 = this;
+
+      _toConsumableArray(this.parentId.childNodes).map(function (child) {
+        return child.classList.remove(_this4.activeClass);
+      });
+    }
+  }, {
+    key: "removeActiveClassByIndex",
+    value: function removeActiveClassByIndex() {
+      var index = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+      this.parentId.childNodes[index].classList.remove(this.activeClass);
     }
   }]);
 
@@ -456,7 +480,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "53805" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64747" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

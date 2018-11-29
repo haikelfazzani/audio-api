@@ -30,10 +30,10 @@ export class AudioPlayer {
 
     getTracks(audioFiles) {
         audioFiles.map(audio => {
-            if(!this.tracks.some(({trackName}) => trackName === audio.name)) 
+            if(!this.tracks.some(({name}) => name === audio.name)) 
             {
                 this.createPlayList(audio);
-                this.tracks.push({ trackName: audio.name , name: URL.createObjectURL(audio) });
+                this.tracks.push({ name: audio.name , url: URL.createObjectURL(audio) });
             }
         });
         return this.tracks;
@@ -57,7 +57,14 @@ export class AudioPlayer {
     }
 
     // create li list from tracks after converting links to urls object
-    createPlayList(url) { this.createElemnt(this.parentId, this.childs, url.name); }
+    createPlayList(audio) { this.createElemnt(this.parentId, this.childs, audio.name); }
+
+    // create a child element and appended to the parent element passed in the constructor
+    createElemnt(parent = "ul", child = "li", text = "") {
+        let element = document.createElement(child);
+        element.innerHTML = text;
+        parent.appendChild(element);
+    }
 
     /* ------- Audio Controls -------- */
 
@@ -142,7 +149,7 @@ export class AudioPlayer {
 
     // play current track by its index passed in parameters
     playCurrentByIndex(trackIndex) {        
-        this.audio.src = this.tracks[trackIndex].name;
+        this.audio.src = this.tracks[trackIndex].url;
         this.audio.play();
     }
 
@@ -158,12 +165,5 @@ export class AudioPlayer {
     removeActiveClassByIndex(index = 0) {
         this.parentId.childNodes[index].classList.remove(this.activeClass);
     }
-
-
-    // create a child element and appended to the parent element passed in the constructor
-    createElemnt(parent = "ul", child = "li", text = "") {
-        let element = document.createElement(child);
-        element.innerHTML = text;
-        parent.appendChild(element);
-    }
+    
 }

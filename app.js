@@ -29,9 +29,9 @@ window.onload = () => {
     btnPlay.onclick     = () => audio.playTrack();    
     btnPause.onclick    = () => audio.pauseTack();
     btnStop.onclick     = () => audio.stopTrack();
-    btnMute.onclick     = () => audio.muteTack();
-    btnNext.onclick     = () => audio.nextTack();
+    btnMute.onclick     = () => audio.muteTack();    
     btnPrev.onclick     = () => audio.prevTack();
+    btnNext.onclick     = () => audio.nextTack();
     btnPlus.onclick     = () => audio.volPlus();
     btnMinus.onclick    = () => audio.volMinus();
 

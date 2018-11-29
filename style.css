@@ -63,6 +63,8 @@ button {
     transition: .2s ease;
 }
 
+#btn-mute { background-color: #607d8b; }
+
 button:hover {
     background-color: #c7104d;
 }
