@@ -5,9 +5,17 @@
   "main": "index.html",
   "scripts": {
     "dev": "parcel index.html",
-    "build": "parcel src/api.js"
+    "build": "parcel build src/api.js",
+    "watch": "parcel watch index.html"
   },
-  "keywords": ["audio" , "player" , "api"],
+  "keywords": [
+    "audio",
+    "player",
+    "api"
+  ],
   "author": "Haikel Fazzani",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "cssnano": "^4.1.7"
+  }
 }

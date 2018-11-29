@@ -1,7 +1,12 @@
 /* Create your own playlist from your local computer */
 /* API Author : Haikel Fazzani */
-/* Api tested on : chrome , firefox , opera , edge */
+/* 
+    Api tested on : chrome , firefox , opera , edge 
+    System : windows
+    support : mp3 , mp4 , wav
+*/
 import EventEmitter from "./event-emiter";
+import { roundTime, sizeTo, getTrackName } from "./handle";
 
 export class AudioPlayer {
 
@@ -12,31 +17,43 @@ export class AudioPlayer {
         this.currentTrackIndex = 0;
         this.i = 0; // index of each audio stored in the array : tracks
         this.parentElmnt = parentElmnt; // example ul elements
-        this.childs = childs; // example li elements
-        this.duration = this.audio.duration;
+        this.childs = childs; // example li elements        
         this.hasChild = false; // parent element (ul) has childs (li)
         this.activeClass = activeClass; // active track class (css)
         this.loopAll = loopAll; // loop all tracks ( : boolean)
         this.audio.loop = loop; // loop single track ( : boolean)
+
         this.loopAllTacks(); // ( : method)
     }
 
-    addTrack(event) {
-        event.preventDefault();       
-        let audioFiles = [...event.target.files];
-        this.getTracks(audioFiles);
+    addTracks(event) {
+        event.preventDefault();
+        this.setTracks([...event.target.files]);
         this.emitter.emit('haschild', this.hasChild = true);
     }
 
-    getTracks(audioFiles) {
-        audioFiles.map(audio => {
-            if(!this.tracks.some(({name}) => name === audio.name)) 
-            {
+    setTracksURL(url) {
+        let obj = { name: getTrackName(url), url: url };
+
+        if (!this.tracks.some(({ url }) => url === obj.url)) {
+            this.createPlayList(obj);
+            this.tracks.push(obj);
+        }
+        this.emitter.emit('haschild', this.hasChild = true);
+    }
+
+    setTracks(audioLinks) {
+        audioLinks.map(audio => {
+            if (!this.tracks.some(({ name }) => name === audio.name)) {
                 this.createPlayList(audio);
-                this.tracks.push({ name: audio.name , url: URL.createObjectURL(audio) });
+                this.tracks.push(
+                    {
+                        name: audio.name, size: audio.size, sizeTo: sizeTo(audio.size),
+                        url: URL.createObjectURL(audio)
+                    }
+                );
             }
         });
-        return this.tracks;
     }
 
     // on child element click , play track
@@ -63,10 +80,27 @@ export class AudioPlayer {
     createElemnt(parent = "ul", child = "li", text = "") {
         let element = document.createElement(child);
         element.innerHTML = text;
+        element.dataset.track = text;
         parent.appendChild(element);
     }
 
-    /* ------- Audio Controls -------- */
+    /** emit & get : Progress , duration ---- */
+    setProgress(seekbar, progressTime = {}) {
+        this.audio.ontimeupdate = () => {
+            let currentTime = roundTime(this.audio.currentTime),
+                duration = roundTime(this.audio.duration),
+                seekValue = Math.floor((100 / this.audio.duration) * this.audio.currentTime);
+
+            if (!isNaN(seekValue)) {
+                seekbar.value = seekValue;
+                progressTime.innerHTML = currentTime + '/' + duration;
+            }
+        }
+    }
+
+
+    getAudioObject() { return this.audio; }
+    /* --------------------- Audio Controls -------- */
 
     playTrack() {
         if (this.tracks.length > 0) {
@@ -87,7 +121,7 @@ export class AudioPlayer {
     }
 
     nextTack() {
-        if (this.tracks.length > 0) {            
+        if (this.tracks.length > 0) {
             this.removeActiveClassByIndex(this.currentTrackIndex);
             this.currentTrackIndex++;
 
@@ -129,7 +163,7 @@ export class AudioPlayer {
         this.emitter.emit('playall', this.loopAll);
         return this.loopAll;
     }
-    
+
     // this method listen for the event 'playall' emited by playAll() method
     loopAllTacks() {
         this.emitter.on('playall', (playall) => {
@@ -138,7 +172,7 @@ export class AudioPlayer {
                     this.removeActiveClassByIndex(this.currentTrackIndex);
                     this.currentTrackIndex++;
 
-                    if(this.currentTrackIndex === this.tracks.length) {
+                    if (this.currentTrackIndex === this.tracks.length) {
                         this.currentTrackIndex = 0;
                     }
 
@@ -150,9 +184,15 @@ export class AudioPlayer {
     }
 
     // play current track by its index passed in parameters
-    playCurrentByIndex(trackIndex) {        
+    playCurrentByIndex(trackIndex) {
+        let isPlaying = this.audio.currentTime > 0 && !this.audio.paused && !this.audio.ended
+            && this.audio.readyState > 2;
+
         this.audio.src = this.tracks[trackIndex].url;
-        this.audio.play();
+        if (!isPlaying) {       
+            this.audio.oncanplay = () => this.audio.play();
+        }
+        return this.tracks[trackIndex].name;
     }
 
     /* add & remove a active class to the current child play (css) */
@@ -168,5 +208,4 @@ export class AudioPlayer {
     removeActiveClassByIndex(index = 0) {
         this.parentElmnt.childNodes[index].classList.remove(this.activeClass);
     }
-    
 }

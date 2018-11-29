@@ -11,19 +11,25 @@ window.onload = () => {
         btnPlus     = document.getElementById('btn-plus'),
         btnMinus    = document.getElementById('btn-minus') ,
         btnLoop     = document.getElementById('btn-loop') ,
-        btnLoopAll  = document.getElementById('btn-loop-all') ;
+        btnLoopAll  = document.getElementById('btn-loop-all') ,
+        seekbar     = document.getElementById('seekbar') ,
+        progressTime = document.getElementById('progress-time'); 
 
     let inputFile = document.getElementById('input-file'),
+        inputText = document.getElementById('input-text'),
+        btnAdd = document.getElementById('btn-add'),
         ul = document.getElementById('audio-list');
 
     /**  */
-    let audio = new AudioPlayer(ul, 'li');
+    let audio = new AudioPlayer(ul);
 
-    inputFile.onchange = (event) => audio.addTrack(event);
+    inputFile.onchange = (event) => { audio.addTracks(event); };
+    btnAdd.onclick = () => {
+        audio.setTracksURL(inputText.value)
+    }
 
     // on click on audio in the list , the audio play the current
-    audio.onChildPlay();
-
+    audio.onChildPlay();    
 
     /* Audio Controls */
     btnPlay.onclick     = () => audio.playTrack();    
@@ -36,10 +42,18 @@ window.onload = () => {
     btnMinus.onclick    = () => audio.volMinus();
 
     // get the current audio duration
-    audio.onloadedmetadata = () => {
-        console.log(audio.duration)
-    }
+    //audio.getDuration().then(res => console.log(res));
+    audio.setProgress(seekbar , progressTime);
+
+    // audio.getAudioObject().onloadeddata = () => {
+    //     console.log(audio.getAudioObject().duration)
+    // };
+
+    // audio.getAudioObject().ontimeupdate = () => {
+    //     console.log(audio.getAudioObject().currentTime)
+    // };
 
     btnLoop.onclick = () => audio.loopTack();
     btnLoopAll.onclick = () => audio.playAll();
+
 }

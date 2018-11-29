@@ -20,6 +20,13 @@
     <button id="btn-add">Add</button>-->
 
     <div class="top-items">
+        <h1 style="color:#e91e63;">Audio Supported : MOV , MP4 , MP3 , OGG</h1>
+        <h2>From Url</h2>
+        <input type="text" id="input-text" placeholder="enter url ..">
+        <button id="btn-add">Add</button>
+        <small>example : http://mirrors.standaloneinstaller.com/video-sample/page18-movie-4.mov</small><br>
+        <small>example : https://www.sample-videos.com/audio/mp3/wave.mp3</small>
+
         <h2>Load From Computer</h2>
         <input type="file" class="inputfile" id="input-file" multiple>
         <label for="file">Upload track</label>
@@ -32,18 +39,21 @@
             <button id="btn-play"><i class="fas fa-play"></i></button>
             <button id="btn-pause"><i class="fas fa-pause"></i></button>
             <button id="btn-stop"><i class="fas fa-stop"></i></button>
-            
+
             <button id="btn-previous"><i class="fas fa-backward"></i></button>
-            <button id="btn-next"><i class="fas fa-forward"></i></button>            
+            <button id="btn-next"><i class="fas fa-forward"></i></button>
 
             <button id="btn-plus"><i class="fas fa-plus"></i></button>
             <button id="btn-minus"><i class="fas fa-minus"></i></button>
 
             <button id="btn-loop"><i class="fas fa-undo"></i></button>
-            <button id="btn-loop-all"><i class="fas fa-circle-notch"></i></button>
+            <button id="btn-loop-all"><i class="fas fa-sync-alt"></i></button>
 
             <button id="btn-mute"><i class="fas fa-volume-mute"></i></button>
         </div>
+
+        <progress id="seekbar" value="0" max="100" style="width:96%;"></progress>
+        <span id="progress-time"></span>
 
         <div class="play-list">
             <ul id="audio-list"></ul>
