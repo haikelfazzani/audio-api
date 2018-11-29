@@ -4,6 +4,7 @@ window.onload = () => {
 
     let btnPlay     = document.getElementById('btn-play'),
         btnPause    = document.getElementById('btn-pause'),
+        btnStop     = document.getElementById('btn-stop'),
         btnNext     = document.getElementById('btn-next'),
         btnPrev     = document.getElementById('btn-previous'),
         btnMute     = document.getElementById('btn-mute'),
@@ -18,20 +19,21 @@ window.onload = () => {
     /**  */
     let audio = new AudioPlayer(ul, 'li');
 
-    inputFile.onchange = (event) => audio.addAudio(event);
+    inputFile.onchange = (event) => audio.addTrack(event);
 
     // on click on audio in the list , the audio play the current
-    audio.playCurrentTack();
+    audio.onChildPlay();
 
 
     /* Audio Controls */
-    btnPlay.onclick     = () => audio.playTrack();
-    btnMute.onclick     = () => audio.muteTack()
+    btnPlay.onclick     = () => audio.playTrack();    
     btnPause.onclick    = () => audio.pauseTack();
+    btnStop.onclick     = () => audio.stopTrack();
+    btnMute.onclick     = () => audio.muteTack();
     btnNext.onclick     = () => audio.nextTack();
     btnPrev.onclick     = () => audio.prevTack();
-    btnPlus.onclick     = () => audio.volUp();
-    btnMinus.onclick    = () => audio.volDown();
+    btnPlus.onclick     = () => audio.volPlus();
+    btnMinus.onclick    = () => audio.volMinus();
 
     // get the current audio duration
     audio.onloadedmetadata = () => {

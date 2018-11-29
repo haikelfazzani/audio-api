@@ -1,2 +1,4 @@
 # Parcel
 .cache
+
+node_modules/

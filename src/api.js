@@ -21,7 +21,7 @@ export class AudioPlayer {
         this.loopAllTacks(); // ( : method)
     }
 
-    addAudio(event) {
+    addTrack(event) {
         event.preventDefault();
         let audioFile = event.target.files[0], audioBlob = URL.createObjectURL(audioFile);
 
@@ -32,8 +32,8 @@ export class AudioPlayer {
         return this.tracks;
     }
 
-    // on click on audio in the list , the audio play the current
-    playCurrentTack() {
+    // on child element click , play track
+    onChildPlay() {
         this.emitter.on('haschild', (hasChild) => {
             if (hasChild) {
                 [...this.parentId.childNodes].map((child, index) => {
@@ -42,8 +42,7 @@ export class AudioPlayer {
                         this.removeActiveClass();
                         child.classList.add(this.activeClass);
                         this.currentTrackIndex = index;
-                        this.audio.src = this.tracks[index].name;
-                        this.audio.play();
+                        this.playCurrentByIndex(index);
                     }
                 });
             }
@@ -51,9 +50,7 @@ export class AudioPlayer {
     }
 
     // create li list from tracks after converting links to urls object
-    createPlayList(url) {
-        this.createElemnt(this.parentId, this.childs, url.name);
-    }
+    createPlayList(url) { this.createElemnt(this.parentId, this.childs, url.name); }
 
     /* ------- Audio Controls -------- */
 
@@ -61,14 +58,18 @@ export class AudioPlayer {
         if (this.tracks.length > 0) {
             this.removeActiveClass();
             this.addActiveClassByIndex(this.currentTrackIndex);
-            this.audio.src = this.tracks[this.currentTrackIndex].name;
-            this.audio.play();
+            this.playCurrentByIndex(this.currentTrackIndex);
         }
     }
 
     pauseTack() {
         if (this.audio.paused) this.audio.play()
         else this.audio.pause();
+    }
+
+    stopTrack() {
+        this.audio.pause();
+        this.audio.currentTime = 0;
     }
 
     nextTack() {
@@ -80,8 +81,7 @@ export class AudioPlayer {
                 0 : this.currentTrackIndex;
 
             this.addActiveClassByIndex(this.currentTrackIndex);
-            this.audio.src = this.tracks[this.currentTrackIndex].name;
-            this.audio.play();
+            this.playCurrentByIndex(this.currentTrackIndex);
         }
     }
 
@@ -91,20 +91,20 @@ export class AudioPlayer {
             this.currentTrackIndex--;
             this.currentTrackIndex = this.currentTrackIndex < 0 ? this.tracks.length - 1 :
                 this.currentTrackIndex;
+
             this.addActiveClassByIndex(this.currentTrackIndex);
-            this.audio.src = this.tracks[this.currentTrackIndex].name;
-            this.audio.play();
+            this.playCurrentByIndex(this.currentTrackIndex);
         }
     }
 
     muteTack() { this.audio.muted = this.audio.muted === false ? true : false; }
-    volUp() { return this.audio.volume = this.audio.volume < 1 ? this.audio.volume + 0.1 : 0.9; }
-    volDown() { return this.audio.volume = this.audio.volume > 0.1 ? this.audio.volume - 0.1 : 0.1; }
+    volPlus() { return this.audio.volume = this.audio.volume < 1 ? this.audio.volume + 0.1 : 0.9; }
+    volMinus() { return this.audio.volume = this.audio.volume > 0.1 ? this.audio.volume - 0.1 : 0.1; }
 
     // loop single track
     loopTack() {
-        if (this.audio.loop) this.audio.loop = false;
-        else this.audio.loop = true;
+        this.loopAll = false;
+        this.audio.loop = this.audio.loop ? false : true;
     }
 
     // loop all tracks list
@@ -114,7 +114,8 @@ export class AudioPlayer {
         this.emitter.emit('playall', this.loopAll);
         return this.loopAll;
     }
-
+    
+    // this method listen for the event 'playall' emited by playAll() method
     loopAllTacks() {
         this.emitter.on('playall', (playall) => {
             this.audio.onended = () => {
@@ -126,20 +127,23 @@ export class AudioPlayer {
                         0 : this.tracks.length - 1;
 
                     this.addActiveClassByIndex(this.currentTrackIndex);
-                    this.audio.src = this.tracks[this.currentTrackIndex].name;
-                    this.audio.play();
+                    this.playCurrentByIndex(this.currentTrackIndex);
                 }
             }
         });
     }
 
-    /* __________ Methods to handle the tracks list Elements */
+    // play current track by its index passed in parameters
+    playCurrentByIndex(trackIndex) {        
+        this.audio.src = this.tracks[trackIndex].name;
+        this.audio.play();
+    }
 
+    /* add & remove a active class to the current child play (css) */
     addActiveClassByIndex(index = 0) {
         this.parentId.childNodes[index].classList.add(this.activeClass);
     }
 
-    // remove class 'active' from the previous active track
     removeActiveClass() {
         [...this.parentId.childNodes].map(child => child.classList.remove(this.activeClass));
     }
@@ -149,7 +153,7 @@ export class AudioPlayer {
     }
 
 
-    // create element dom
+    // create a child element and appended to the parent element passed in the constructor
     createElemnt(parent = "ul", child = "li", text = "") {
         let element = document.createElement(child);
         element.innerHTML = text;
