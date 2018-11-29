@@ -220,7 +220,7 @@ function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _d
 var AudioPlayer =
 /*#__PURE__*/
 function () {
-  function AudioPlayer(parentId) {
+  function AudioPlayer(parentElmnt) {
     var childs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 'li';
     var activeClass = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "active";
     var loop = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;
@@ -235,7 +235,7 @@ function () {
     this.currentTrackIndex = 0;
     this.i = 0; // index of each audio stored in the array : tracks
 
-    this.parentId = parentId; // example ul elements
+    this.parentElmnt = parentElmnt; // example ul elements
 
     this.childs = childs; // example li elements
 
@@ -289,7 +289,7 @@ function () {
 
       this.emitter.on('haschild', function (hasChild) {
         if (hasChild) {
-          _toConsumableArray(_this2.parentId.childNodes).map(function (child, index) {
+          _toConsumableArray(_this2.parentElmnt.childNodes).map(function (child, index) {
             _this2.emitter.removeListener('haschild', _this2.hasChild);
 
             child.onclick = function () {
@@ -308,7 +308,7 @@ function () {
   }, {
     key: "createPlayList",
     value: function createPlayList(audio) {
-      this.createElemnt(this.parentId, this.childs, audio.name);
+      this.createElemnt(this.parentElmnt, this.childs, audio.name);
     } // create a child element and appended to the parent element passed in the constructor
 
   }, {
@@ -386,6 +386,7 @@ function () {
     value: function loopTack() {
       this.loopAll = false;
       this.audio.loop = this.audio.loop ? false : true;
+      return this.audio.loop;
     } // loop all tracks list
 
   }, {
@@ -408,7 +409,10 @@ function () {
             _this3.removeActiveClassByIndex(_this3.currentTrackIndex);
 
             _this3.currentTrackIndex++;
-            _this3.currentTrackIndex = _this3.currentTrackIndex > _this3.tracks.length - 1 ? 0 : _this3.tracks.length - 1;
+
+            if (_this3.currentTrackIndex === _this3.tracks.length) {
+              _this3.currentTrackIndex = 0;
+            }
 
             _this3.addActiveClassByIndex(_this3.currentTrackIndex);
 
@@ -430,14 +434,15 @@ function () {
     key: "addActiveClassByIndex",
     value: function addActiveClassByIndex() {
       var index = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-      this.parentId.childNodes[index].classList.add(this.activeClass);
-    }
+      this.parentElmnt.childNodes[index].classList.add(this.activeClass);
+    } // remove all active classes expect the current track play
+
   }, {
     key: "removeActiveClass",
     value: function removeActiveClass() {
       var _this4 = this;
 
-      _toConsumableArray(this.parentId.childNodes).map(function (child) {
+      _toConsumableArray(this.parentElmnt.childNodes).map(function (child) {
         return child.classList.remove(_this4.activeClass);
       });
     }
@@ -445,7 +450,7 @@ function () {
     key: "removeActiveClassByIndex",
     value: function removeActiveClassByIndex() {
       var index = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-      this.parentId.childNodes[index].classList.remove(this.activeClass);
+      this.parentElmnt.childNodes[index].classList.remove(this.activeClass);
     }
   }]);
 
@@ -480,7 +485,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64747" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "51314" + '/');
 
   ws.onmessage = function (event) {
     var data = JSON.parse(event.data);

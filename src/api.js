@@ -5,13 +5,13 @@ import EventEmitter from "./event-emiter";
 
 export class AudioPlayer {
 
-    constructor(parentId, childs = 'li', activeClass = "active", loop = false, loopAll = false) {
+    constructor(parentElmnt, childs = 'li', activeClass = "active", loop = false, loopAll = false) {
         this.emitter = new EventEmitter();
         this.audio = new Audio();
         this.tracks = []; // list of tracks
         this.currentTrackIndex = 0;
         this.i = 0; // index of each audio stored in the array : tracks
-        this.parentId = parentId; // example ul elements
+        this.parentElmnt = parentElmnt; // example ul elements
         this.childs = childs; // example li elements
         this.duration = this.audio.duration;
         this.hasChild = false; // parent element (ul) has childs (li)
@@ -43,7 +43,7 @@ export class AudioPlayer {
     onChildPlay() {
         this.emitter.on('haschild', (hasChild) => {
             if (hasChild) {
-                [...this.parentId.childNodes].map((child, index) => {
+                [...this.parentElmnt.childNodes].map((child, index) => {
                     this.emitter.removeListener('haschild', this.hasChild);
                     child.onclick = () => {
                         this.removeActiveClass();
@@ -57,7 +57,7 @@ export class AudioPlayer {
     }
 
     // create li list from tracks after converting links to urls object
-    createPlayList(audio) { this.createElemnt(this.parentId, this.childs, audio.name); }
+    createPlayList(audio) { this.createElemnt(this.parentElmnt, this.childs, audio.name); }
 
     // create a child element and appended to the parent element passed in the constructor
     createElemnt(parent = "ul", child = "li", text = "") {
@@ -119,6 +119,7 @@ export class AudioPlayer {
     loopTack() {
         this.loopAll = false;
         this.audio.loop = this.audio.loop ? false : true;
+        return this.audio.loop;
     }
 
     // loop all tracks list
@@ -137,8 +138,9 @@ export class AudioPlayer {
                     this.removeActiveClassByIndex(this.currentTrackIndex);
                     this.currentTrackIndex++;
 
-                    this.currentTrackIndex = this.currentTrackIndex > this.tracks.length - 1 ?
-                        0 : this.tracks.length - 1;
+                    if(this.currentTrackIndex === this.tracks.length) {
+                        this.currentTrackIndex = 0;
+                    }
 
                     this.addActiveClassByIndex(this.currentTrackIndex);
                     this.playCurrentByIndex(this.currentTrackIndex);
@@ -155,15 +157,16 @@ export class AudioPlayer {
 
     /* add & remove a active class to the current child play (css) */
     addActiveClassByIndex(index = 0) {
-        this.parentId.childNodes[index].classList.add(this.activeClass);
+        this.parentElmnt.childNodes[index].classList.add(this.activeClass);
     }
 
+    // remove all active classes expect the current track play
     removeActiveClass() {
-        [...this.parentId.childNodes].map(child => child.classList.remove(this.activeClass));
+        [...this.parentElmnt.childNodes].map(child => child.classList.remove(this.activeClass));
     }
 
     removeActiveClassByIndex(index = 0) {
-        this.parentId.childNodes[index].classList.remove(this.activeClass);
+        this.parentElmnt.childNodes[index].classList.remove(this.activeClass);
     }
     
 }
