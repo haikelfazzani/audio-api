@@ -2,23 +2,25 @@ import EventEmitter from "./event-emiter";
 
 export class AudioPlayer {
 
-    constructor(parentElment, childs = 'li' , activeClass = "active") {
-        this.emitter                = new EventEmitter();
-        this.audio                  = new Audio();
-        this.tracks                 = []; // list of tracks
-        this.currentTrackIndex      = 0;
-        this.i                      = 0; // index of each audio stored in the array : tracks
-        this.parentElment           = parentElment; // example ul elements
-        this.childs                 = childs; // example li elements
-        this.duration               = this.audio.duration;
-        this.hasChild               = false; // parent element (ul) has childs (li)
-        this.activeClass            = activeClass; // active track class (css)
-        this.loopAllAudios          = false;
+    constructor(parentElment, childs = 'li', activeClass = "active", loop = false, loopAll = false) {
+        this.emitter = new EventEmitter();
+        this.audio = new Audio();
+        this.tracks = []; // list of tracks
+        this.currentTrackIndex = 0;
+        this.i = 0; // index of each audio stored in the array : tracks
+        this.parentElment = parentElment; // example ul elements
+        this.childs = childs; // example li elements
+        this.duration = this.audio.duration;
+        this.hasChild = false; // parent element (ul) has childs (li)
+        this.activeClass = activeClass; // active track class (css)
+        this.loopAll = loopAll; // loop all tracks
+        this.audio.loop = loop; // loop single track
+        this.loopAllTacks();
     }
 
     addAudio(event) {
         event.preventDefault();
-        let audioFile = event.target.files[0] , audioBlob = URL.createObjectURL(audioFile);
+        let audioFile = event.target.files[0], audioBlob = URL.createObjectURL(audioFile);
 
         this.createPlayList(audioFile);
         this.tracks.push({ id: this.i++, name: audioBlob });
@@ -33,7 +35,7 @@ export class AudioPlayer {
             if (hasChild) {
                 [...this.parentElment.childNodes].map((child, index) => {
                     this.emitter.removeListener('haschild', this.hasChild);
-                    child.onclick = () => {       
+                    child.onclick = () => {
                         this.removeActiveClass();
                         child.classList.add(this.activeClass);
                         this.currentTrackIndex = index;
@@ -47,63 +49,106 @@ export class AudioPlayer {
 
     // create li list from tracks after converting links to urls object
     createPlayList(url) {
-        let element = document.createElement(this.childs);
-        element.innerHTML = url.name;
-        this.parentElment.appendChild(element);
+        this.createElemnt(this.parentElment, this.childs, url.name);
     }
 
     /* ------- Audio Controls -------- */
 
-    play() {
+    playTrack() {
         if (this.tracks.length > 0) {
             this.removeActiveClass();
-            this.parentElment.childNodes[0].classList.add(this.activeClass);
-            this.audio.src = this.tracks[0].name;
+            this.addActiveClassByIndex(this.currentTrackIndex);
+            this.audio.src = this.tracks[this.currentTrackIndex].name;
             this.audio.play();
         }
     }
 
-    pause() {
+    pauseTack() {
         if (this.audio.paused) this.audio.play()
         else this.audio.pause();
     }
 
-    next() {
+    nextTack() {
         if (this.tracks.length > 0) {
+            this.removeActiveClassByIndex(this.currentTrackIndex);
             this.currentTrackIndex++;
-            this.currentTrackIndex = this.currentTrackIndex > this.tracks.length - 1 ? 0 : 
-                                    this.currentTrackIndex;
+
+            this.currentTrackIndex = this.currentTrackIndex > this.tracks.length - 1 ?
+                0 : this.currentTrackIndex;
+
+            this.addActiveClassByIndex(this.currentTrackIndex);
             this.audio.src = this.tracks[this.currentTrackIndex].name;
             this.audio.play();
         }
     }
 
-    prev() {
+    prevTack() {
         if (this.tracks.length > 0) {
-            this.currentTrackIndex--;tracks
-            this.currentTrackIndex = this.currentTrackIndex < 0 ? this.tracks.length - 1 : 
-                                    this.currentTrackIndex;
+            this.removeActiveClassByIndex(this.currentTrackIndex);
+            this.currentTrackIndex--;
+            this.currentTrackIndex = this.currentTrackIndex < 0 ? this.tracks.length - 1 :
+                this.currentTrackIndex;
+            this.addActiveClassByIndex(this.currentTrackIndex);
             this.audio.src = this.tracks[this.currentTrackIndex].name;
             this.audio.play();
         }
     }
 
-    mute() { this.audio.muted = this.audio.muted === false ? true : false; }
+    muteTack() { this.audio.muted = this.audio.muted === false ? true : false; }
     volUp() { return this.audio.volume = this.audio.volume < 1 ? this.audio.volume + 0.1 : 0.9; }
-    volDown() { return this.audio.volume = this.audio.volume > 0.1 ? this.audio.volume - 0.1 : 0.1;  }
-    
-    // loop all tracks list
-    actLoopAll() {
-        this.currentTrackIndex++;
-        this.currentTrackIndex = this.currentTrackIndex > this.tracks.length - 1 ? 0 : this.currentTrackIndex;
-        this.audio.src = this.tracks[this.currentTrackIndex].name;
-        this.audio.play();
+    volDown() { return this.audio.volume = this.audio.volume > 0.1 ? this.audio.volume - 0.1 : 0.1; }
+
+    // loop single track
+    loopTack() {
+        if (this.audio.loop) this.audio.loop = false;
+        else this.audio.loop = true;
     }
 
-    /* __________ Methods to handle the tracks list */
+    // loop all tracks list
+    playAll() {
+        this.audio.loop = false;
+        this.loopAll = this.loopAll ? false : true;
+        this.emitter.emit('playall', this.loopAll);
+    }
+
+    loopAllTacks() {
+        this.emitter.on('playall', (playall) => {
+            this.audio.onended = () => {
+                if (playall) {
+                    this.removeActiveClassByIndex(this.currentTrackIndex);
+                    this.currentTrackIndex++;
+
+                    this.currentTrackIndex = this.currentTrackIndex > this.tracks.length - 1 ?
+                        0 : this.tracks.length - 1;
+
+                    this.addActiveClassByIndex(this.currentTrackIndex);
+                    this.audio.src = this.tracks[this.currentTrackIndex].name;
+                    this.audio.play();
+                }
+            }
+        });
+    }
+
+    /* __________ Methods to handle the tracks list Elements */
+
+    addActiveClassByIndex(index = 0) {
+        this.parentElment.childNodes[index].classList.add(this.activeClass);
+    }
 
     // remove class 'active' from the previous active track
     removeActiveClass() {
-        [...this.parentElment.childNodes].map(child => child.classList.remove("active"));
+        [...this.parentElment.childNodes].map(child => child.classList.remove(this.activeClass));
+    }
+
+    removeActiveClassByIndex(index = 0) {
+        this.parentElment.childNodes[index].classList.remove(this.activeClass);
+    }
+
+
+    // create element dom
+    createElemnt(parent = "ul", child = "li", text = "") {
+        let element = document.createElement(child);
+        element.innerHTML = text;
+        parent.appendChild(element);
     }
 }
