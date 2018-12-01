@@ -414,8 +414,8 @@ function () {
       };
     }
   }, {
-    key: "getAudioObject",
-    value: function getAudioObject() {
+    key: "getAudio",
+    value: function getAudio() {
       return this.audio;
     }
     /* --------------------- Audio Controls -------- */

@@ -6,45 +6,43 @@ body {
     font-family: 'Roboto','Montserrat', sans-serif;
 }
 
-.top-items {
-    font-family: 'Montserrat', sans-serif;
-    display: block; max-width: 50%; margin: 40px auto 0;
+.container {
+    padding: 10px;
+    margin: auto;
+    max-width: 700px;
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: stretch;
 }
+
+.item {
+    flex: 1 1 100%;
+}
+
+    .controls {
+        margin-top: 20px;
+        display: flex;
+    }
+
+        .controls button {
+            flex: 1 1 10%;
+        }
+
+    .play-list {
+        display: flex;
+        flex-direction: column;
+        background-color: #ffffff;
+    }
 
 input[type="text"] { font-size: 16px; padding: 7px; width: 85%; }
 
-.audio-player {
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: center;    
-    background-color: #ffffff;    
-    max-width: 48.5%;
-    padding: 10px;
-    margin: auto;
-}
-
-.audio-controls {
-    display:flex;
-    flex-direction:row;
-}
-
-.audio-controls > button {
-  flex:1 1 auto;
-  text-align:center;
-  margin: 5px; 
-}
-
-.play-list { width: 97%; }
-
-ul { padding: 0; }
+ul { padding: 0; margin: 0; }
 
 li {
+    color: #000000;
     font-size: 14px;
-    background-color: #1d1d1d;
     padding: 10px;
-    color: #ffffff;
     list-style: none;
     cursor: pointer;
     transition-property: background-color;
@@ -56,8 +54,7 @@ button {
     background-color: #e91e63;
     padding: 10px 20px;
     border: 0;
-    cursor: pointer;
-    border: 1px solid #1d1d1d;
+    cursor: pointer;    
     transition-property: background-color;
     transition: .2s ease;
 }
@@ -72,14 +69,12 @@ button:active , button:focus {
     background-color: #8bc34a;
 }
 
-li:hover { background-color: #000000; }
+li:hover { background-color: #e0e0e0; }
 
 .active {
-    color: #ffffff;
-    background-color: #e91e63;
+    color: #f50;
+    background-color: #e0e0e0;
 }
-
-span { color: #000000; }
 
 
 /**/
@@ -105,3 +100,16 @@ span { color: #000000; }
 .inputfile + label:hover {
     background-color: #c7104d;
 }
+
+
+@media screen and (max-width: 378px) {
+    .container , .play-list {
+        flex-direction: row;
+    }
+
+    .controls {
+        flex-direction: column;
+    }
+
+    .controls button { width: 100%; }
+  }

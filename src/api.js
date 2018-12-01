@@ -1,6 +1,6 @@
-/* Create your own playlist from url or your local computer */
-/* API Author : Haikel Fazzani */
-/* 
+/* Create your own playlist from url or your local computer 
+ API Author : Haikel Fazzani 
+ 
     Api tested on : chrome , firefox , opera , edge 
     System : windows
     support : mp3 , mp4 , wav , mov , ogg
@@ -99,7 +99,7 @@ export class AudioPlayer {
     }
 
 
-    getAudioObject() { return this.audio; }
+    getAudio() { return this.audio; }
     /* --------------------- Audio Controls -------- */
 
     playTrack() {
