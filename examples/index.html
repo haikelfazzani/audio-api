@@ -31,7 +31,9 @@
             <input type="text" id="input-text" placeholder="enter url ..">
             <button id="btn-add">Add</button>
             <div>
-                <small>example : http://mirrors.standaloneinstaller.com/video-sample/page18-movie-4.mov</small><br>
+                <small>example : http://mirrors.standaloneinstaller.com/video-sample/page18-movie-4.mov</small>                
+            </div>
+            <div>
                 <small>example : https://www.sample-videos.com/audio/mp3/wave.mp3</small>
             </div>
         </div>
@@ -40,6 +42,7 @@
             <h2>Load From Computer</h2>
             <input type="file" class="inputfile" id="input-file" multiple>
             <label for="file">Upload track</label>
+            <span id="progress-time" style="float:right"></span>
         </div>
 
         <div class="item">
@@ -60,8 +63,7 @@
                 <button id="btn-mute"><i class="fas fa-volume-mute"></i></button>
             </div>
 
-            <progress id="seekbar" value="0" max="100" style="width:100%;"></progress>
-            <span id="progress-time"></span>
+            <progress id="seekbar" value="0" max="100" style="width:100%;"></progress>            
 
             <div class="play-list">
                 <ul id="audio-list"></ul>

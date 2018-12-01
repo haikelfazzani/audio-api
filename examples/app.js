@@ -1,4 +1,4 @@
-import { AudioPlayer } from './src/api';
+import { AudioPlayer } from '../src/api';
 
 window.onload = () => {
 
