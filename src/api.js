@@ -1,22 +1,22 @@
-/* Create your own playlist from your local computer */
+/* Create your own playlist from url or your local computer */
 /* API Author : Haikel Fazzani */
 /* 
     Api tested on : chrome , firefox , opera , edge 
     System : windows
-    support : mp3 , mp4 , wav
+    support : mp3 , mp4 , wav , mov , ogg
 */
 import EventEmitter from "./event-emiter";
-import { roundTime, sizeTo, getTrackName } from "./handle";
+import { sizeTo, getTrackName, secdsToHms } from "./format";
 
 export class AudioPlayer {
 
-    constructor(parentElmnt, childs = 'li', activeClass = "active", loop = false, loopAll = false) {
+    constructor({ parent, childs = 'li', activeClass = "active", loop = false, loopAll = false }) {
         this.emitter = new EventEmitter();
         this.audio = new Audio();
         this.tracks = []; // list of tracks
         this.currentTrackIndex = 0;
         this.i = 0; // index of each audio stored in the array : tracks
-        this.parentElmnt = parentElmnt; // example ul elements
+        this.parentElmnt = parent; // example ul elements
         this.childs = childs; // example li elements        
         this.hasChild = false; // parent element (ul) has childs (li)
         this.activeClass = activeClass; // active track class (css)
@@ -33,11 +33,11 @@ export class AudioPlayer {
     }
 
     setTracksURL(url) {
-        let obj = { name: getTrackName(url), url: url };
+        let track = { name: getTrackName(url), url };
 
-        if (!this.tracks.some(({ url }) => url === obj.url)) {
-            this.createPlayList(obj);
-            this.tracks.push(obj);
+        if (!this.tracks.some(({ url }) => url === track.url)) {
+            this.createPlayList(track);
+            this.tracks.push(track);
         }
         this.emitter.emit('haschild', this.hasChild = true);
     }
@@ -84,16 +84,16 @@ export class AudioPlayer {
         parent.appendChild(element);
     }
 
-    /** emit & get : Progress , duration ---- */
-    setProgress(seekbar, progressTime = {}) {
+    /** set progress , duration ---- */
+    setProgress(seekbar, spanElmnt = {}) {
         this.audio.ontimeupdate = () => {
-            let currentTime = roundTime(this.audio.currentTime),
-                duration = roundTime(this.audio.duration),
-                seekValue = Math.floor((100 / this.audio.duration) * this.audio.currentTime);
+            let duration = this.audio.duration,
+                currentTime = this.audio.currentTime,
+                seekValue = Math.floor((100 / duration) * currentTime);
 
             if (!isNaN(seekValue)) {
                 seekbar.value = seekValue;
-                progressTime.innerHTML = currentTime + '/' + duration;
+                spanElmnt.innerHTML = secdsToHms(currentTime) + '/' + secdsToHms(duration);
             }
         }
     }
@@ -111,13 +111,17 @@ export class AudioPlayer {
     }
 
     pauseTack() {
-        if (this.audio.paused) this.audio.play()
-        else this.audio.pause();
+        if (this.audio.readyState > 1) {
+            if (this.audio.paused) this.audio.play()
+            else this.audio.pause();
+        }
     }
 
     stopTrack() {
-        this.audio.pause();
-        this.audio.currentTime = 0;
+        if (this.audio.readyState > 1) {
+            //this.audio.currentTime = 0;
+            this.audio.pause();
+        }
     }
 
     nextTack() {
@@ -145,8 +149,8 @@ export class AudioPlayer {
         }
     }
 
-    muteTack() { this.audio.muted = this.audio.muted === false ? true : false; }
-    volPlus() { return this.audio.volume = this.audio.volume < 1 ? this.audio.volume + 0.1 : 0.9; }
+    muteTack() { return this.audio.muted = this.audio.muted ? false : true; }
+    volPlus() { return this.audio.volume = this.audio.volume > 0.9 ? 0.9 : this.audio.volume + 0.1; }
     volMinus() { return this.audio.volume = this.audio.volume > 0.1 ? this.audio.volume - 0.1 : 0.1; }
 
     // loop single track
@@ -189,7 +193,7 @@ export class AudioPlayer {
             && this.audio.readyState > 2;
 
         this.audio.src = this.tracks[trackIndex].url;
-        if (!isPlaying) {       
+        if (!isPlaying) {
             this.audio.oncanplay = () => this.audio.play();
         }
         return this.tracks[trackIndex].name;

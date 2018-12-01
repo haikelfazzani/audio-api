@@ -13,15 +13,15 @@ window.onload = () => {
         btnLoop     = document.getElementById('btn-loop') ,
         btnLoopAll  = document.getElementById('btn-loop-all') ,
         seekbar     = document.getElementById('seekbar') ,
-        progressTime = document.getElementById('progress-time'); 
+        spanElemnt = document.getElementById('progress-time'); 
 
     let inputFile = document.getElementById('input-file'),
         inputText = document.getElementById('input-text'),
         btnAdd = document.getElementById('btn-add'),
-        ul = document.getElementById('audio-list');
+        parent = document.getElementById('audio-list');
 
     /**  */
-    let audio = new AudioPlayer(ul);
+    let audio = new AudioPlayer({parent});
 
     inputFile.onchange = (event) => { audio.addTracks(event); };
     btnAdd.onclick = () => {
@@ -43,7 +43,7 @@ window.onload = () => {
 
     // get the current audio duration
     //audio.getDuration().then(res => console.log(res));
-    audio.setProgress(seekbar , progressTime);
+    audio.setProgress(seekbar , spanElemnt);
 
     // audio.getAudioObject().onloadeddata = () => {
     //     console.log(audio.getAudioObject().duration)
